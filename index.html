@@ -424,14 +424,14 @@ body {
 /* ── MEETING TABLE ── */
 .mtg-head {
   display: grid;
-  grid-template-columns: 34px 50px 1fr 130px 115px 105px 95px;
+  grid-template-columns: 34px 115px 1fr 160px 160px 170px 70px;
   padding: 9px 14px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
 }
 .mtg-row {
   display: grid;
-  grid-template-columns: 34px 50px 1fr 130px 115px 105px 95px;
+  grid-template-columns: 34px 115px 1fr 160px 160px 170px 70px;
   padding: 6px 14px;
   border-bottom: 1px solid var(--border);
   align-items: center;
@@ -536,14 +536,14 @@ body {
 /* submissions table */
 .sub-head {
   display: grid;
-  grid-template-columns: 1fr 70px 70px 130px 130px 100px;
+  grid-template-columns: 1fr 70px 70px 130px 130px 100px 110px 100px;
   padding: 9px 16px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
 }
 .sub-row {
   display: grid;
-  grid-template-columns: 1fr 70px 70px 130px 130px 100px;
+  grid-template-columns: 1fr 70px 70px 130px 130px 100px 110px 100px;
   padding: 11px 16px;
   border-bottom: 1px solid var(--border);
   align-items: center;
@@ -733,8 +733,8 @@ body {
               <button class="btn" style="padding:9px 14px;font-size:13px;" onclick="hideSEPin()">Cancel</button>
             </div>
             <div id="se-pin-err" style="font-size:12px;color:var(--danger);margin-top:8px;display:none;">Incorrect PIN. Please try again.</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:10px;">Forgot your PIN? Contact Abhilash to reset it.</div>
           </div>
-          <!-- State 2: First-time / Set new PIN -->
           <div id="se-pin-set" style="display:none;">
             <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;" id="se-pin-set-title">Set your PIN</div>
             <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">You don't have a PIN yet. Set one now to secure your account.</div>
@@ -816,16 +816,24 @@ body {
 
   <div class="layout">
 
+    <!-- ── WEEK SELECTOR — always visible above wizard ── -->
+    <div class="week-row" id="week-row"></div>
+
     <!-- ── WIZARD STEP INDICATOR ── -->
     <div class="wizard-steps">
       <div class="wizard-step active" id="step-indicator-1">
         <div class="step-circle" id="step-circle-1">1</div>
         <div class="step-label">Product Activity</div>
       </div>
-      <div class="step-connector" id="step-connector"></div>
+      <div class="step-connector" id="step-connector-1"></div>
       <div class="wizard-step" id="step-indicator-2">
         <div class="step-circle" id="step-circle-2">2</div>
         <div class="step-label">Meeting Log</div>
+      </div>
+      <div class="step-connector" id="step-connector-2"></div>
+      <div class="wizard-step" id="step-indicator-3">
+        <div class="step-circle" id="step-circle-3">3</div>
+        <div class="step-label">Country Booking</div>
       </div>
     </div>
 
@@ -835,8 +843,6 @@ body {
         <div class="page-title">Product Activity</div>
         <div class="page-desc">Log leads, meetings and order bookings by product for the selected week.</div>
       </div>
-
-      <div class="week-row" id="week-row"></div>
 
       <div class="note">
         Record 1 lead/meeting per product even if the same customer discussed multiple products. For incentive calculation, log each customer once in the Meeting Log on the next step.
@@ -860,10 +866,9 @@ body {
         </div>
       </div>
 
-      <!-- Step 1 footer: Next only -->
       <div class="wizard-footer">
         <div></div>
-        <button class="btn btn-primary" style="padding:11px 32px;font-size:14px;" onclick="wizardNext()">
+        <button class="btn btn-primary" style="padding:11px 32px;font-size:14px;" onclick="wizardGoTo(2)">
           Next: Meeting Log →
         </button>
       </div>
@@ -894,11 +899,34 @@ body {
         Total unique customer meetings here are used for your meeting incentive calculation.
       </div>
 
-      <!-- Step 2 footer: Back + Submit -->
-      <div class="wizard-footer" id="submit-area">
-        <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardBack()">
-          ← Back
+      <div class="wizard-footer">
+        <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardGoTo(1)">← Back</button>
+        <button class="btn btn-primary" style="padding:11px 32px;font-size:14px;" onclick="wizardGoTo(3)">
+          Next: Country Booking →
         </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: COUNTRY WISE ORDER BOOKING ── -->
+    <div id="wizard-step-3" style="display:none">
+      <div class="page-header">
+        <div class="page-title">Country Wise Order Booking (YTD)</div>
+        <div class="page-desc">Enter year-to-date order booking amounts by country.</div>
+      </div>
+
+      <div class="card">
+        <div style="display:grid;grid-template-columns:44px 1fr 160px;background:var(--bg2);border-bottom:1px solid var(--border);padding:9px 16px;">
+          <div class="th">Sl No.</div>
+          <div class="th">Country</div>
+          <div class="th r">YTD Booking (AED)</div>
+        </div>
+        <div id="country-rows"></div>
+        <button class="add-row" onclick="addCountryRow()">＋ Add country</button>
+      </div>
+
+      <!-- Step 3 footer: Back + Submit -->
+      <div class="wizard-footer" id="submit-area">
+        <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardGoTo(2)">← Back</button>
         <button class="btn btn-success" onclick="submitReport()">Submit Report ✓</button>
       </div>
     </div>
@@ -938,6 +966,8 @@ body {
         <div class="th">Booking (AED)</div>
         <div class="th">Submitted At</div>
         <div class="th">Status</div>
+        <div class="th">Resubmit</div>
+        <div class="th">PIN</div>
       </div>
       <div id="sub-body"></div>
     </div>
@@ -951,6 +981,43 @@ body {
         <div class="th r">Booking (AED)</div>
       </div>
       <div id="pb-body"></div>
+    </div>
+
+    <!-- ── RESUBMIT CONFIRMATION MODAL ── -->
+    <div id="resubmit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;display:none;align-items:center;justify-content:center;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;">Allow Resubmission</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">SE: <strong id="resubmit-name" style="color:var(--text);">—</strong></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Week ending: <strong id="resubmit-date" style="color:var(--text);">—</strong></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">The SE's existing data will be loaded and unlocked for editing. Enter your Director PIN to confirm.</div>
+        <input type="password" id="resubmit-pin" class="field-input"
+          style="margin-bottom:8px;" placeholder="Director PIN"
+          onkeydown="if(event.key==='Enter')executeResubmit()">
+        <div id="resubmit-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
+        <div id="resubmit-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Processing…</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);" onclick="executeResubmit()">Confirm</button>
+          <button class="btn" onclick="closeResubmitModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PIN RESET CONFIRMATION MODAL ── -->
+    <div id="pin-reset-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;align-items:center;justify-content:center;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;">Reset SE PIN</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">SE: <strong id="pin-reset-name" style="color:var(--text);">—</strong></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">This will clear their PIN. They will be prompted to set a new PIN on their next login.</div>
+        <input type="password" id="pin-reset-dir-pin" class="field-input"
+          style="margin-bottom:8px;" placeholder="Director PIN"
+          onkeydown="if(event.key==='Enter')executePinReset()">
+        <div id="pin-reset-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
+        <div id="pin-reset-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Resetting…</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" style="background:var(--info);border-color:var(--info);" onclick="executePinReset()">Confirm Reset</button>
+          <button class="btn" onclick="closePinResetModal()">Cancel</button>
+        </div>
+      </div>
     </div>
 
     <!-- ── DIRECTOR SETTINGS ── -->
@@ -1040,7 +1107,8 @@ const COUNTRIES = ['','United Arab Emirates (UAE)','Saudi Arabia','Qatar','Bahra
 
 // ── STATE ──
 let user = null, role = null, weeks = [], selWeek = 0;
-let mem = {}; // {weekKey: {products:{}, meetings:[], submitted, submittedAt}}
+let mem = {};
+let cachedCountryOptions = ''; // pre-built <option> string, built once on login
 
 // ── SECRET TOKEN ──
 // Must match SECRET_TOKEN in WebApp_Script.gs exactly
@@ -1062,6 +1130,119 @@ function saveWebAppUrl(v) {
   localStorage.setItem('samso_webapp_url', v.trim());
   const st = document.getElementById('url-status');
   if (st) st.textContent = v.trim() ? '✓ URL saved successfully' : '';
+}
+
+// ── RESUBMIT FLOW ──
+let resubmitTarget = { name: '', reportDate: '' };
+
+function confirmResubmit(name, reportDate) {
+  resubmitTarget = { name, reportDate };
+  document.getElementById('resubmit-name').textContent  = name;
+  document.getElementById('resubmit-date').textContent  = reportDate;
+  document.getElementById('resubmit-pin').value         = '';
+  document.getElementById('resubmit-error').style.display   = 'none';
+  document.getElementById('resubmit-loading').style.display = 'none';
+  const modal = document.getElementById('resubmit-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('resubmit-pin').focus(), 100);
+}
+
+function closeResubmitModal() {
+  document.getElementById('resubmit-modal').style.display = 'none';
+  resubmitTarget = { name: '', reportDate: '' };
+}
+
+async function executeResubmit() {
+  const pin     = document.getElementById('resubmit-pin').value.trim();
+  const err     = document.getElementById('resubmit-error');
+  const loading = document.getElementById('resubmit-loading');
+  err.style.display = 'none';
+
+  if (!pin) { err.textContent = 'Please enter your PIN.'; err.style.display = 'block'; return; }
+
+  loading.style.display = 'block';
+  document.getElementById('resubmit-pin').disabled = true;
+
+  try {
+    const r = await fetch(apiUrl("allowResubmit",
+      `name=${encodeURIComponent(resubmitTarget.name)}&reportDate=${encodeURIComponent(resubmitTarget.reportDate)}&directorPin=${encodeURIComponent(pin)}`
+    ));
+    const text = await r.text();
+    const data = JSON.parse(text);
+    loading.style.display = 'none';
+    document.getElementById('resubmit-pin').disabled = false;
+
+    if (data.success) {
+      closeResubmitModal();
+      alert(`✓ Resubmission enabled for ${resubmitTarget.name}.\n\nPlease inform them to open the tool, select Week ending ${resubmitTarget.reportDate}, review their data and resubmit.`);
+    } else {
+      err.textContent = data.error || 'Failed to enable resubmission.';
+      err.style.display = 'block';
+      document.getElementById('resubmit-pin').value = '';
+      document.getElementById('resubmit-pin').focus();
+    }
+  } catch(e) {
+    loading.style.display = 'none';
+    document.getElementById('resubmit-pin').disabled = false;
+    err.textContent = 'Could not reach server. Please try again.';
+    err.style.display = 'block';
+  }
+}
+
+// ── PIN RESET FLOW ──
+let pinResetTarget = '';
+
+function confirmPinReset(name) {
+  pinResetTarget = name;
+  document.getElementById('pin-reset-name').textContent      = name;
+  document.getElementById('pin-reset-dir-pin').value         = '';
+  document.getElementById('pin-reset-error').style.display   = 'none';
+  document.getElementById('pin-reset-loading').style.display = 'none';
+  const modal = document.getElementById('pin-reset-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('pin-reset-dir-pin').focus(), 100);
+}
+
+function closePinResetModal() {
+  document.getElementById('pin-reset-modal').style.display = 'none';
+  pinResetTarget = '';
+}
+
+async function executePinReset() {
+  const pin     = document.getElementById('pin-reset-dir-pin').value.trim();
+  const err     = document.getElementById('pin-reset-error');
+  const loading = document.getElementById('pin-reset-loading');
+  err.style.display = 'none';
+
+  if (!pin) { err.textContent = 'Please enter your Director PIN.'; err.style.display = 'block'; return; }
+
+  loading.style.display = 'block';
+  document.getElementById('pin-reset-dir-pin').disabled = true;
+
+  try {
+    const r = await fetch(apiUrl("resetPin",
+      `name=${encodeURIComponent(pinResetTarget)}&directorPin=${encodeURIComponent(pin)}`
+    ));
+    const text = await r.text();
+    const data = JSON.parse(text);
+    loading.style.display = 'none';
+    document.getElementById('pin-reset-dir-pin').disabled = false;
+
+    if (data.success) {
+      closePinResetModal();
+      alert(`✓ PIN reset for ${pinResetTarget}.\n\nThey will be prompted to set a new PIN on their next login.`);
+    } else {
+      err.textContent = data.error || 'Failed to reset PIN.';
+      err.style.display = 'block';
+      document.getElementById('pin-reset-dir-pin').value = '';
+      document.getElementById('pin-reset-dir-pin').focus();
+    }
+  } catch(e) {
+    loading.style.display = 'none';
+    document.getElementById('pin-reset-dir-pin').disabled = false;
+    err.textContent = 'Could not reach server. Please try again.';
+    err.style.display = 'block';
+  }
 }
 
 // ── DIRECTOR SETTINGS / PIN ──
@@ -1214,7 +1395,7 @@ function getWeekMem(key) {
     } else {
       const prods = {};
       [...PRODUCTS,...CHARGES].forEach(p => prods[p.code]={leads:0,meetings:0,booking:0});
-      mem[key] = {products:prods, meetings:[], submitted:false};
+      mem[key] = {products:prods, meetings:[], countryBookings:[], submitted:false};
     }
   }
   return mem[key];
@@ -1411,9 +1592,42 @@ function initSE() {
   renderWeekRow();
   renderProdRows();
   renderMeetRows();
-  // Always fetch current week from sheet on login — server is source of truth
+  renderCountryRows();
+  // Fetch countries and current week from sheet
+  fetchCountries();
   fetchSubmissionFromSheet(weeks[selWeek]);
 }
+// ── FETCH COUNTRIES ONCE ON LOGIN ──
+async function fetchCountries() {
+  if (!getWebAppUrl()) return;
+  try {
+    const r    = await fetch(apiUrl("getCountries", ""));
+    const text = await r.text();
+    const data = JSON.parse(text);
+    if (data.success && data.countries && data.countries.length > 0) {
+      // Build option string once and cache
+      cachedCountryOptions = '<option value="">— Select Country —</option>' +
+        data.countries.map(c => `<option value="${c}">${c}</option>`).join('');
+      // Re-render country rows now that options are available
+      renderCountryRows();
+    }
+  } catch(e) {
+    console.warn("Could not fetch countries:", e);
+  }
+}
+
+function getCountryOptions(selected) {
+  if (!cachedCountryOptions) {
+    return '<option value="">— Loading countries… —</option>';
+  }
+  if (!selected) return cachedCountryOptions;
+  // Mark selected option
+  return cachedCountryOptions.replace(
+    `value="${selected}"`,
+    `value="${selected}" selected`
+  );
+}
+
 function updateNavPill() {
   const w = weeks[selWeek];
   document.getElementById('week-pill-nav').textContent =
@@ -1423,79 +1637,121 @@ function updateNavPill() {
 async function fetchSubmissionFromSheet(w) {
   if (!getWebAppUrl()) return;
 
-  // w.friday is dd/MM/yyyy — built fresh from buildWeeks() every session
   const reportDate = w.friday;
   if (!reportDate) return;
 
-  // Show loading state in page header
   const header = document.querySelector('#wizard-step-1 .page-desc');
   const origDesc = header ? header.textContent : '';
   if (header) header.textContent = '⏳ Loading data from server…';
 
   try {
-    const fetchUrl = apiUrl("getSubmission", `name=${encodeURIComponent(user)}&reportDate=${encodeURIComponent(reportDate)}`);
-    const r = await fetch(fetchUrl);
+    // Fetch submission data and resubmit flag in parallel
+    const [subResp, resubResp] = await Promise.all([
+      fetch(apiUrl("getSubmission",  `name=${encodeURIComponent(user)}&reportDate=${encodeURIComponent(reportDate)}`)),
+      fetch(apiUrl("checkResubmit", `name=${encodeURIComponent(user)}&reportDate=${encodeURIComponent(reportDate)}`))
+    ]);
 
-    // Apps Script returns text/plain — parse JSON manually
-    const text = await r.text();
-    let data;
-    try { data = JSON.parse(text); }
-    catch(e) {
+    const subText   = await subResp.text();
+    const resubText = await resubResp.text();
+    let subData, resubData;
+
+    try { subData   = JSON.parse(subText);   } catch(e) { if (header) header.textContent = origDesc; return; }
+    try { resubData = JSON.parse(resubText);  } catch(e) { resubData = { success: false, allowed: false }; }
+
+    const resubmitAllowed = resubData.success && resubData.allowed;
+
+    if (!subData.success || !subData.found) {
       if (header) header.textContent = origDesc;
       return;
     }
 
-    if (!data.success) {
-      if (header) header.textContent = origDesc;
-      return;
-    }
-
-    if (!data.found) {
-      // Nothing submitted for this week on the server — leave as is
-      if (header) header.textContent = origDesc;
-      return;
-    }
-
-    // ── Data found — populate ──
+    // Populate data
     const wd = getWeekMem(w.key);
 
-    // Update products
-    if (data.products && data.products.length > 0) {
-      data.products.forEach(p => {
+    if (subData.products && subData.products.length > 0) {
+      subData.products.forEach(p => {
         if (wd.products[p.code] !== undefined) {
           wd.products[p.code] = { leads: p.leads, meetings: p.meetings, booking: p.booking };
         }
       });
     }
 
-    // Update meetings
-    if (data.meetings) {
-      wd.meetings = data.meetings.length > 0 ? data.meetings : wd.meetings;
+    if (subData.meetings) {
+      wd.meetings = subData.meetings.length > 0 ? subData.meetings : wd.meetings;
     }
 
-    // Mark submitted and save to localStorage
-    wd.submitted = true;
-    if (!wd.submittedAt) wd.submittedAt = 'from server';
+    if (subData.countryBookings && subData.countryBookings.length > 0) {
+      wd.countryBookings = subData.countryBookings;
+    }
+
+    if (resubmitAllowed) {
+      // Unlock — treat as NOT submitted so form is editable
+      wd.submitted  = false;
+      wd.submittedAt = null;
+      // Show resubmit banner
+      showResubmitBanner();
+    } else {
+      wd.submitted = true;
+      if (!wd.submittedAt) wd.submittedAt = 'from server';
+    }
+
+    // Save to localStorage
     const store = load();
     if (!store[user]) store[user] = {};
     store[user][w.key] = wd;
     save(store);
     mem[w.key] = wd;
 
-    // Re-render both steps with server data
     renderProdRows();
     renderMeetRows();
-    renderWeekRow(); // Update chip to show ✓
-
+    renderCountryRows();
+    renderWeekRow();
     if (header) header.textContent = origDesc;
 
   } catch(err) {
-    // Show error briefly so it's not invisible
     if (header) {
       header.textContent = '⚠️ Could not reach server. Showing local data.';
       setTimeout(() => { if (header) header.textContent = origDesc; }, 3000);
     }
   }
+}
+
+function showResubmitBanner() {
+  hideSubmittedBanner(); // clear any submitted banner first
+  const existing = document.getElementById('resubmit-banner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'resubmit-banner';
+  banner.className = 'banner warning';
+  banner.style.marginBottom = '16px';
+  banner.innerHTML = `<span class="b-icon">✏️</span>
+    <div><strong>Resubmission enabled by Director.</strong> Your previous data has been loaded. Review, make corrections and submit again.</div>`;
+  const weekRow = document.getElementById('week-row');
+  weekRow.parentNode.insertBefore(banner, weekRow.nextSibling);
+}
+
+function hideResubmitBanner() {
+  const b = document.getElementById('resubmit-banner');
+  if (b) b.remove();
+}
+
+function showSubmittedBanner(w, wd) {
+  hideResubmitBanner(); // clear resubmit banner if present
+  const existing = document.getElementById('submitted-banner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.id = 'submitted-banner';
+  banner.className = 'banner success';
+  banner.style.marginBottom = '16px';
+  banner.innerHTML = `<span class="b-icon">✓</span>
+    <div><strong>${w.label} submitted</strong>${wd.submittedAt ? ' — ' + wd.submittedAt : ''}. Read only. Contact Abhilash for corrections.</div>`;
+  const weekRow = document.getElementById('week-row');
+  weekRow.parentNode.insertBefore(banner, weekRow.nextSibling);
+}
+
+function hideSubmittedBanner() {
+  const b = document.getElementById('submitted-banner');
+  if (b) b.remove();
 }
 
 function renderWeekRow() {
@@ -1511,8 +1767,8 @@ function renderWeekRow() {
       renderWeekRow();
       renderProdRows();
       renderMeetRows();
+      renderCountryRows();
       updateNavPill();
-      // Always try to fetch from sheet — server is the source of truth
       fetchSubmissionFromSheet(w);
     };
     wrap.appendChild(btn);
@@ -1553,26 +1809,90 @@ function renderProdRows() {
 
   updateTotals();
 
-  // Swap submit area if locked
+  // Swap submit area if locked (submit is on step 3)
   if (locked) {
     document.getElementById('submit-area').innerHTML = `
-      <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardBack()">← Back</button>
+      <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardGoTo(2)">← Back</button>
       <div class="banner success" style="margin:0;flex:1">
         <span class="b-icon">✓</span>
         <div><strong>${w.label} submitted</strong> — ${wd.submittedAt||''}. Read only. Contact Abhilash for corrections.</div>
       </div>`;
-    // Also disable Next button on step 1
     const nextBtn = document.querySelector('#wizard-step-1 .btn-primary');
     if (nextBtn) { nextBtn.textContent = 'View Meeting Log →'; nextBtn.disabled = false; nextBtn.style.opacity=''; }
   } else {
     document.getElementById('submit-area').innerHTML = `
-      <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardBack()">← Back</button>
+      <button class="btn" style="padding:11px 24px;font-size:14px;" onclick="wizardGoTo(2)">← Back</button>
       <button class="btn btn-success" onclick="submitReport()">Submit Report ✓</button>`;
     const nextBtn = document.querySelector('#wizard-step-1 .btn-primary');
     if (nextBtn) { nextBtn.textContent = 'Next: Meeting Log →'; nextBtn.disabled = false; nextBtn.style.opacity=''; }
   }
-  // Always reset wizard to step 1 when week changes
-  resetWizard();
+  hideResubmitBanner();
+
+  // Show/hide submitted banner below week chips
+  if (locked) {
+    showSubmittedBanner(w, wd);
+  } else {
+    hideSubmittedBanner();
+  }
+}
+
+// ── COUNTRY BOOKING ROWS ──
+function renderCountryRows() {
+  const w  = weeks[selWeek];
+  const wd = getWeekMem(w.key);
+  if (!wd.countryBookings) wd.countryBookings = [];
+  // Ensure at least 1 row
+  if (wd.countryBookings.length === 0) wd.countryBookings.push({country:'', booking:0});
+  const container = document.getElementById('country-rows');
+  if (!container) return;
+  container.innerHTML = '';
+  wd.countryBookings.forEach((cb, i) => renderOneCountryRow(container, cb, i, wd.submitted));
+}
+
+function renderOneCountryRow(container, cb, i, locked) {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:44px 1fr 160px;padding:6px 16px;border-bottom:1px solid var(--border);align-items:center;';
+  row.innerHTML = `
+    <div class="rn">${i + 1}</div>
+    <select class="m-select" style="width:98%;" ${locked ? 'disabled' : ''} onchange="setCountryField(${i},'country',this.value)">
+      ${getCountryOptions(cb.country)}
+    </select>
+    <input type="text" inputmode="numeric" class="n-input aed" style="width:140px;"
+      value="${cb.booking ? formatAED(cb.booking) : ''}" placeholder="0"
+      ${locked ? 'disabled' : ''}
+      oninput="handleCountryAED(this,${i})"
+      onblur="formatCountryAEDBlur(this,${i})"
+      onfocus="unformatCountryAEDFocus(this,${i})">`;
+  container.appendChild(row);
+}
+
+function addCountryRow() {
+  const wd = getWeekMem(weeks[selWeek].key);
+  if (!wd.countryBookings) wd.countryBookings = [];
+  wd.countryBookings.push({country:'', booking:0});
+  const container = document.getElementById('country-rows');
+  renderOneCountryRow(container, wd.countryBookings[wd.countryBookings.length-1], wd.countryBookings.length-1, false);
+}
+
+function setCountryField(i, field, val) {
+  const wd = getWeekMem(weeks[selWeek].key);
+  if (!wd.countryBookings[i]) wd.countryBookings[i] = {country:'', booking:0};
+  wd.countryBookings[i][field] = val;
+}
+function handleCountryAED(el, i) {
+  const raw = el.value.replace(/[^0-9.]/g, '');
+  const num = parseFloat(raw) || 0;
+  setCountryField(i, 'booking', num);
+}
+function formatCountryAEDBlur(el, i) {
+  const wd  = getWeekMem(weeks[selWeek].key);
+  const val = wd.countryBookings[i] ? wd.countryBookings[i].booking : 0;
+  el.value  = val ? formatAED(val) : '';
+}
+function unformatCountryAEDFocus(el, i) {
+  const wd  = getWeekMem(weeks[selWeek].key);
+  const val = wd.countryBookings[i] ? wd.countryBookings[i].booking : 0;
+  el.value  = val ? val : '';
 }
 
 // ── AED FORMATTING ──
@@ -1664,43 +1984,53 @@ function switchTab(name, btn) {
 }
 
 // ── WIZARD NAVIGATION ──
-function wizardNext() {
-  // Move to step 2
-  document.getElementById('wizard-step-1').style.display = 'none';
-  document.getElementById('wizard-step-2').style.display = 'block';
+let currentStep = 1;
+
+function wizardGoTo(step) {
+  // Hide all steps
+  [1,2,3].forEach(s => {
+    const el = document.getElementById('wizard-step-' + s);
+    if (el) el.style.display = 'none';
+  });
+
+  // Show target step
+  const target = document.getElementById('wizard-step-' + step);
+  if (target) target.style.display = 'block';
+  currentStep = step;
+
   // Update step indicators
-  document.getElementById('step-indicator-1').classList.remove('active');
-  document.getElementById('step-indicator-1').classList.add('done');
-  document.getElementById('step-circle-1').textContent = '✓';
-  document.getElementById('step-connector').classList.add('done');
-  document.getElementById('step-indicator-2').classList.add('active');
-  // Render meeting rows fresh
-  renderMeetRows();
-  // Scroll to top of step
+  [1,2,3].forEach(s => {
+    const ind    = document.getElementById('step-indicator-' + s);
+    const circle = document.getElementById('step-circle-' + s);
+    if (!ind || !circle) return;
+    ind.classList.remove('active','done');
+    if (s < step)      { ind.classList.add('done'); circle.textContent = '✓'; }
+    else if (s === step){ ind.classList.add('active'); circle.textContent = s; }
+    else               { circle.textContent = s; }
+  });
+
+  // Update connectors
+  [1,2].forEach(s => {
+    const conn = document.getElementById('step-connector-' + s);
+    if (!conn) return;
+    conn.classList.toggle('done', s < step);
+  });
+
+  // Render the step's data if needed
+  if (step === 2) renderMeetRows();
+  if (step === 3) renderCountryRows();
+
+  // Scroll to top of SE view
   document.getElementById('view-se').scrollIntoView({behavior:'smooth', block:'start'});
 }
-function wizardBack() {
-  // Return to step 1
-  document.getElementById('wizard-step-2').style.display = 'none';
-  document.getElementById('wizard-step-1').style.display = 'block';
-  // Reset step indicators
-  document.getElementById('step-indicator-1').classList.add('active');
-  document.getElementById('step-indicator-1').classList.remove('done');
-  document.getElementById('step-circle-1').textContent = '1';
-  document.getElementById('step-connector').classList.remove('done');
-  document.getElementById('step-indicator-2').classList.remove('active');
-  document.getElementById('view-se').scrollIntoView({behavior:'smooth', block:'start'});
-}
+
 function resetWizard() {
-  // Called after submit or on new week selection
-  document.getElementById('wizard-step-1').style.display = 'block';
-  document.getElementById('wizard-step-2').style.display = 'none';
-  document.getElementById('step-indicator-1').classList.add('active');
-  document.getElementById('step-indicator-1').classList.remove('done');
-  document.getElementById('step-circle-1').textContent = '1';
-  document.getElementById('step-connector').classList.remove('done');
-  document.getElementById('step-indicator-2').classList.remove('active');
+  wizardGoTo(1);
 }
+
+// Keep backward compat for any remaining references
+function wizardNext() { wizardGoTo(2); }
+function wizardBack() { wizardGoTo(currentStep - 1); }
 
 // ── SUBMIT ──
 async function submitReport() {
@@ -1723,7 +2053,7 @@ async function submitReport() {
   // Build payload
   const payload = {
     token:        SECRET_TOKEN,
-    reportDate:   w.friday,           // dd/MM/yyyy — Friday end date
+    reportDate:   w.friday,
     weekLabel:    w.label,
     officerName:  user,
     officerEmail: '',
@@ -1741,6 +2071,10 @@ async function submitReport() {
       designation:  m.designation || '',
       country:      m.country     || '',
       type:         m.type        || 'Onsite',
+    })),
+    countryBookings: (wd.countryBookings||[]).filter(cb => cb.country && cb.country.trim()).map(cb => ({
+      country: cb.country.trim(),
+      booking: cb.booking || 0,
     }))
   };
 
@@ -1769,7 +2103,11 @@ async function submitReport() {
 
     renderWeekRow();
     renderProdRows();
+    renderMeetRows();
+    renderCountryRows();
     resetWizard();
+    hideResubmitBanner();
+    hideSubmittedBanner();
     alert(`✓ Report for ${w.label} submitted to Google Sheets!\n\nThank you, ${user}. Your data has been recorded.`);
 
   } catch(err) {
@@ -1998,12 +2336,12 @@ function renderKPIsFromSheet(data) {
 function renderSubTableFromSheet(data) {
   const body = document.getElementById('sub-body');
   body.innerHTML = '';
-  const subs    = data.submitted || []; // already sorted latest first by Apps Script
+  const subs    = data.submitted || [];
   const pending = data.pending   || [];
+  const reportDate = data.reportDate || '';
 
   // Submitted — latest first
-  subs.forEach((s, idx) => {
-    const rank = idx + 1;
+  subs.forEach((s) => {
     body.innerHTML += `<div class="sub-row">
       <div class="se-name">${s.name}</div>
       <div class="sc">${s.leads}</div>
@@ -2011,17 +2349,29 @@ function renderSubTableFromSheet(data) {
       <div class="s-aed">AED ${(s.booking||0).toLocaleString()}</div>
       <div class="s-date" style="color:var(--text2);font-size:12px;">${s.submittedAt || '—'}</div>
       <div><span class="pill pill-ok">✓ Submitted</span></div>
+      <div>
+        <button class="btn" style="font-size:11px;padding:4px 10px;color:var(--danger);border-color:var(--danger);"
+          onclick="confirmResubmit('${s.name.replace(/'/g,"\\'")}','${reportDate}')">
+          Allow
+        </button>
+      </div>
+      <div>
+        <button class="btn" style="font-size:11px;padding:4px 10px;color:var(--info);border-color:var(--info);"
+          onclick="confirmPinReset('${s.name.replace(/'/g,"\\'")}')">
+          Reset PIN
+        </button>
+      </div>
     </div>`;
   });
 
-  // Divider between submitted and pending (only if both exist)
+  // Divider
   if (subs.length > 0 && pending.length > 0) {
     body.innerHTML += `<div style="padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.07em;text-transform:uppercase;">
       Pending — ${pending.length} not yet submitted
     </div>`;
   }
 
-  // Pending — alphabetical (already sorted from Staff_Master)
+  // Pending
   pending.forEach(name => {
     body.innerHTML += `<div class="sub-row">
       <div class="se-name" style="color:var(--text2);">${name}</div>
@@ -2030,6 +2380,13 @@ function renderSubTableFromSheet(data) {
       <div class="s-aed" style="color:var(--text3)">—</div>
       <div class="s-date" style="color:var(--text3)">Not yet submitted</div>
       <div><span class="pill pill-pending">Pending</span></div>
+      <div></div>
+      <div>
+        <button class="btn" style="font-size:11px;padding:4px 10px;color:var(--info);border-color:var(--info);"
+          onclick="confirmPinReset('${name.replace(/'/g,"\\'")}')">
+          Reset PIN
+        </button>
+      </div>
     </div>`;
   });
 
