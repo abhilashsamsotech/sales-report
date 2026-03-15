@@ -1835,6 +1835,8 @@ async function fetchSubmissionFromSheet(w) {
     renderCountryRows();
     renderWeekRow();
     if (header) header.textContent = origDesc;
+
+  } catch(err) {
     if (header) {
       header.textContent = '⚠️ Could not reach server. Showing local data.';
       setTimeout(() => { if (header) header.textContent = origDesc; }, 3000);
