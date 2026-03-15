@@ -1286,11 +1286,20 @@ function toggleSettings() {
   const isHidden = panel.style.display === 'none';
   panel.style.display = isHidden ? 'block' : 'none';
   if (isHidden) {
-    document.getElementById('settings-pin-gate').style.display    = 'block';
-    document.getElementById('settings-content').style.display     = 'none';
-    document.getElementById('pin-error').style.display            = 'none';
-    document.getElementById('settings-pin-input').value           = '';
-    setTimeout(() => document.getElementById('settings-pin-input').focus(), 100);
+    // If no URL configured yet, skip PIN gate and open settings directly
+    if (!getWebAppUrl()) {
+      document.getElementById('settings-pin-gate').style.display = 'none';
+      document.getElementById('settings-content').style.display  = 'block';
+      const urlEl = document.getElementById('webapp-url');
+      if (urlEl) urlEl.value = '';
+      setTimeout(() => { if (urlEl) urlEl.focus(); }, 100);
+    } else {
+      document.getElementById('settings-pin-gate').style.display = 'block';
+      document.getElementById('settings-content').style.display  = 'none';
+      document.getElementById('pin-error').style.display         = 'none';
+      document.getElementById('settings-pin-input').value        = '';
+      setTimeout(() => document.getElementById('settings-pin-input').focus(), 100);
+    }
   }
 }
 
@@ -1423,14 +1432,12 @@ async function changeDirectorPin() {
 }
 
 function enableSetupMode() {
-  // Clear stored URL so bootstrap PIN 1234 works
+  // Clear stored URL so setup can proceed
   localStorage.removeItem('samso_webapp_url');
-  const errEl = document.getElementById('dir-pin-err');
-  errEl.style.color   = 'var(--info)';
-  errEl.textContent   = 'Setup mode enabled. Enter PIN 1234 to login and configure your Web App URL.';
-  errEl.style.display = 'block';
-  document.getElementById('dir-login-pin').value = '';
-  document.getElementById('dir-login-pin').focus();
+  // Auto-login immediately — no PIN needed for setup
+  user = 'Abhilash'; role = 'director';
+  showView('director');
+  initDirector();
 }
 
 // ── WEEK HELPERS ──
