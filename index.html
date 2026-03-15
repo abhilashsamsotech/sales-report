@@ -989,15 +989,24 @@ body {
         <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;">Allow Resubmission</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">SE: <strong id="resubmit-name" style="color:var(--text);">—</strong></div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Week ending: <strong id="resubmit-date" style="color:var(--text);">—</strong></div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">The SE's existing data will be loaded and unlocked for editing. Enter your Director PIN to confirm.</div>
-        <input type="password" id="resubmit-pin" class="field-input"
-          style="margin-bottom:8px;" placeholder="Director PIN"
-          onkeydown="if(event.key==='Enter')executeResubmit()">
-        <div id="resubmit-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
-        <div id="resubmit-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Processing…</div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);" onclick="executeResubmit()">Confirm</button>
-          <button class="btn" onclick="closeResubmitModal()">Cancel</button>
+        <div id="resubmit-form">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">The SE's existing data will be loaded and unlocked for editing. Enter your Director PIN to confirm.</div>
+          <input type="password" id="resubmit-pin" class="field-input"
+            style="margin-bottom:8px;" placeholder="Director PIN"
+            onkeydown="if(event.key==='Enter')executeResubmit()">
+          <div id="resubmit-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
+          <div id="resubmit-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Processing…</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);" onclick="executeResubmit()">Confirm</button>
+            <button class="btn" onclick="closeResubmitModal()">Cancel</button>
+          </div>
+        </div>
+        <div id="resubmit-success" style="display:none;">
+          <div class="banner success" style="margin-bottom:16px;">
+            <span class="b-icon">✓</span>
+            <div id="resubmit-success-msg"></div>
+          </div>
+          <button class="btn" onclick="closeResubmitModal()">Close</button>
         </div>
       </div>
     </div>
@@ -1007,15 +1016,24 @@ body {
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
         <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;">Reset SE PIN</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">SE: <strong id="pin-reset-name" style="color:var(--text);">—</strong></div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">This will clear their PIN. They will be prompted to set a new PIN on their next login.</div>
-        <input type="password" id="pin-reset-dir-pin" class="field-input"
-          style="margin-bottom:8px;" placeholder="Director PIN"
-          onkeydown="if(event.key==='Enter')executePinReset()">
-        <div id="pin-reset-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
-        <div id="pin-reset-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Resetting…</div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-primary" style="background:var(--info);border-color:var(--info);" onclick="executePinReset()">Confirm Reset</button>
-          <button class="btn" onclick="closePinResetModal()">Cancel</button>
+        <div id="pin-reset-form">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">This will clear their PIN. They will be prompted to set a new PIN on their next login.</div>
+          <input type="password" id="pin-reset-dir-pin" class="field-input"
+            style="margin-bottom:8px;" placeholder="Director PIN"
+            onkeydown="if(event.key==='Enter')executePinReset()">
+          <div id="pin-reset-error" style="font-size:12px;color:var(--danger);margin-bottom:12px;display:none;"></div>
+          <div id="pin-reset-loading" style="font-size:13px;color:var(--text2);margin-bottom:12px;display:none;">✦ Resetting…</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" style="background:var(--info);border-color:var(--info);" onclick="executePinReset()">Confirm Reset</button>
+            <button class="btn" onclick="closePinResetModal()">Cancel</button>
+          </div>
+        </div>
+        <div id="pin-reset-success" style="display:none;">
+          <div class="banner success" style="margin-bottom:16px;">
+            <span class="b-icon">✓</span>
+            <div id="pin-reset-success-msg"></div>
+          </div>
+          <button class="btn" onclick="closePinResetModal()">Close</button>
         </div>
       </div>
     </div>
@@ -1137,13 +1155,14 @@ let resubmitTarget = { name: '', reportDate: '' };
 
 function confirmResubmit(name, reportDate) {
   resubmitTarget = { name, reportDate };
-  document.getElementById('resubmit-name').textContent  = name;
-  document.getElementById('resubmit-date').textContent  = reportDate;
-  document.getElementById('resubmit-pin').value         = '';
-  document.getElementById('resubmit-error').style.display   = 'none';
-  document.getElementById('resubmit-loading').style.display = 'none';
-  const modal = document.getElementById('resubmit-modal');
-  modal.style.display = 'flex';
+  document.getElementById('resubmit-name').textContent       = name;
+  document.getElementById('resubmit-date').textContent       = reportDate;
+  document.getElementById('resubmit-pin').value              = '';
+  document.getElementById('resubmit-error').style.display    = 'none';
+  document.getElementById('resubmit-loading').style.display  = 'none';
+  document.getElementById('resubmit-form').style.display     = 'block';
+  document.getElementById('resubmit-success').style.display  = 'none';
+  document.getElementById('resubmit-modal').style.display    = 'flex';
   setTimeout(() => document.getElementById('resubmit-pin').focus(), 100);
 }
 
@@ -1158,7 +1177,7 @@ async function executeResubmit() {
   const loading = document.getElementById('resubmit-loading');
   err.style.display = 'none';
 
-  if (!pin) { err.textContent = 'Please enter your PIN.'; err.style.display = 'block'; return; }
+  if (!pin) { err.textContent = 'Please enter your Director PIN.'; err.style.display = 'block'; return; }
 
   loading.style.display = 'block';
   document.getElementById('resubmit-pin').disabled = true;
@@ -1173,8 +1192,11 @@ async function executeResubmit() {
     document.getElementById('resubmit-pin').disabled = false;
 
     if (data.success) {
-      closeResubmitModal();
-      alert(`✓ Resubmission enabled for ${resubmitTarget.name}.\n\nPlease inform them to open the tool, select Week ending ${resubmitTarget.reportDate}, review their data and resubmit.`);
+      document.getElementById('resubmit-form').style.display    = 'none';
+      document.getElementById('resubmit-success').style.display = 'block';
+      document.getElementById('resubmit-success-msg').innerHTML =
+        `Resubmission enabled for <strong>${resubmitTarget.name}</strong>.<br>
+         Please inform them to open the tool, select Week ending <strong>${resubmitTarget.reportDate}</strong>, review their data and resubmit.`;
     } else {
       err.textContent = data.error || 'Failed to enable resubmission.';
       err.style.display = 'block';
@@ -1194,12 +1216,13 @@ let pinResetTarget = '';
 
 function confirmPinReset(name) {
   pinResetTarget = name;
-  document.getElementById('pin-reset-name').textContent      = name;
-  document.getElementById('pin-reset-dir-pin').value         = '';
-  document.getElementById('pin-reset-error').style.display   = 'none';
-  document.getElementById('pin-reset-loading').style.display = 'none';
-  const modal = document.getElementById('pin-reset-modal');
-  modal.style.display = 'flex';
+  document.getElementById('pin-reset-name').textContent       = name;
+  document.getElementById('pin-reset-dir-pin').value          = '';
+  document.getElementById('pin-reset-error').style.display    = 'none';
+  document.getElementById('pin-reset-loading').style.display  = 'none';
+  document.getElementById('pin-reset-form').style.display     = 'block';
+  document.getElementById('pin-reset-success').style.display  = 'none';
+  document.getElementById('pin-reset-modal').style.display    = 'flex';
   setTimeout(() => document.getElementById('pin-reset-dir-pin').focus(), 100);
 }
 
@@ -1229,8 +1252,11 @@ async function executePinReset() {
     document.getElementById('pin-reset-dir-pin').disabled = false;
 
     if (data.success) {
-      closePinResetModal();
-      alert(`✓ PIN reset for ${pinResetTarget}.\n\nThey will be prompted to set a new PIN on their next login.`);
+      document.getElementById('pin-reset-form').style.display    = 'none';
+      document.getElementById('pin-reset-success').style.display = 'block';
+      document.getElementById('pin-reset-success-msg').innerHTML =
+        `PIN has been reset for <strong>${pinResetTarget}</strong>.<br>
+         They will be prompted to set a new PIN on their next login.`;
     } else {
       err.textContent = data.error || 'Failed to reset PIN.';
       err.style.display = 'block';
