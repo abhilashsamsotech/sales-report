@@ -122,11 +122,9 @@ body {
 .btn-success:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ── VIEWS ── */
-.view { display:none; }
-.view.active { display:block; }
-/* All views render in DOM flow — inactive ones are visually hidden but take no space */
-.view { visibility: hidden; height: 0; overflow: hidden; }
-.view.active { visibility: visible; height: auto; overflow: visible; display: block; }
+.view { display:none; visibility:hidden; height:0; overflow:hidden; }
+.view.active { display:block; visibility:visible; height:auto; overflow:visible; }
+#view-director-login.active { display:flex; }
 
 /* ── LOGIN ── */
 #view-login {
@@ -1348,7 +1346,7 @@ async function verifyDirectorPin() {
   const proceed = async () => {
     try {
       user = 'Abhilash'; role = 'director';
-      document.getElementById('view-director-login').style.display = 'none';
+      document.getElementById('view-director-login').classList.remove('active');
       showView('director');
       await initDirector();
     } catch(e) {
@@ -2726,7 +2724,7 @@ function exportCSV() {
 (function() {
   const isDirector = window.location.search.includes('director');
   if (isDirector) {
-    document.getElementById('view-director-login').style.display = 'flex';
+    document.getElementById('view-director-login').classList.add('active');
   } else {
     document.getElementById('view-login').classList.add('active');
   }
