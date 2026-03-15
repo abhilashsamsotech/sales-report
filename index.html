@@ -1714,8 +1714,9 @@ async function fetchCountries() {
       // Build option string once and cache
       cachedCountryOptions = '<option value="">— Select Country —</option>' +
         data.countries.map(c => `<option value="${c}">${c}</option>`).join('');
-      // Re-render country rows now that options are available
+      // Re-render both country booking rows and meeting rows now that options are available
       renderCountryRows();
+      renderMeetRows();
     }
   } catch(e) {
     console.warn("Could not fetch countries:", e);
@@ -2118,7 +2119,13 @@ function renderMeetRows() {
 function renderOneMeet(container,m,i,locked) {
   const row = document.createElement('div');
   row.className = 'mtg-row';
-  const copts = COUNTRIES.map(c=>`<option value="${c}" ${m.country===c?'selected':''}>${c}</option>`).join('');
+  // Use countries fetched from Google Sheet; fall back to hardcoded list if not yet loaded
+  let copts;
+  if (cachedCountryOptions) {
+    copts = getCountryOptions(m.country);
+  } else {
+    copts = COUNTRIES.map(c=>`<option value="${c}" ${m.country===c?'selected':''}>${c}</option>`).join('');
+  }
   row.innerHTML=`
     <div class="rn">${i+1}</div>
     <input type="date" class="m-date" value="${m.meetingDate||''}" ${locked?'disabled':''} oninput="setMeet(${i},'meetingDate',this.value)">
