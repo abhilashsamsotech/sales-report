@@ -1346,7 +1346,6 @@ async function verifyDirectorPin() {
   const proceed = async () => {
     try {
       user = 'Abhilash'; role = 'director';
-      document.getElementById('view-director-login').classList.remove('active');
       showView('director');
       await initDirector();
     } catch(e) {
@@ -1670,13 +1669,17 @@ function logout() {
   showView('login');
 }
 function showView(v) {
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  const target = document.getElementById('view-'+v);
-  target.classList.add('active');
-  // Smooth scroll to the newly visible section
-  setTimeout(() => {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 50);
+  ['login','director-login','se','director'].forEach(function(name) {
+    var el = document.getElementById('view-' + name);
+    if (el) el.style.cssText = 'display:none;visibility:hidden;height:0;overflow:hidden;';
+  });
+  var target = document.getElementById('view-' + v);
+  if (!target) return;
+  var isFlexView = ['login','director-login'].indexOf(v) !== -1;
+  target.style.cssText = (isFlexView
+    ? 'display:flex;visibility:visible;height:auto;overflow:visible;min-height:100vh;align-items:center;justify-content:center;'
+    : 'display:block;visibility:visible;height:auto;overflow:visible;');
+  setTimeout(() => { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
 }
 
 // ── SE INIT ──
@@ -2722,11 +2725,19 @@ function exportCSV() {
 <!-- ── PAGE INIT ── -->
 <script>
 (function() {
-  const isDirector = window.location.search.includes('director');
+  // Hide all views first
+  ['view-login','view-director-login','view-se','view-director'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.style.cssText += ';display:none!important;visibility:hidden;height:0;overflow:hidden;'; }
+  });
+
+  var isDirector = window.location.search.indexOf('director') !== -1;
   if (isDirector) {
-    document.getElementById('view-director-login').classList.add('active');
+    var el = document.getElementById('view-director-login');
+    el.style.cssText = 'display:flex!important;visibility:visible;height:auto;overflow:visible;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);';
   } else {
-    document.getElementById('view-login').classList.add('active');
+    var el = document.getElementById('view-login');
+    el.style.cssText = 'display:flex!important;visibility:visible;height:auto;overflow:visible;min-height:100vh;align-items:center;justify-content:center;';
   }
 })();
 </script>
