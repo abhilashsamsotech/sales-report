@@ -2389,11 +2389,11 @@ function hideSubmitStatus() {
 // ── Animated submit progress ──
 let _progressTimer = null;
 const PROGRESS_STEPS = [
-  { delay: 0,    msg: '⏳ Connecting to server…' },
-  { delay: 2000, msg: '⏳ Saving product activity…' },
-  { delay: 4500, msg: '⏳ Saving meeting log…' },
-  { delay: 6500, msg: '⏳ Saving country bookings…' },
-  { delay: 8500, msg: '⏳ Wrapping up… almost done!' },
+  { delay: 0,     msg: '⏳ Connecting to server…' },
+  { delay: 2000,  msg: '⏳ Saving product activity…' },
+  { delay: 6000,  msg: '⏳ Saving meeting log…' },
+  { delay: 10000, msg: '⏳ Saving country bookings…' },
+  { delay: 12000, msg: '⏳ Wrapping up… almost done!' },
 ];
 function startSubmitProgress(weekLabel) {
   hideSubmitStatus();
