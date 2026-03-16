@@ -1199,7 +1199,7 @@ async function initWebAppUrl() {
   // Try up to 3 times with a short delay — handles transient network blips
   for (var attempt = 1; attempt <= 3; attempt++) {
     try {
-      const r = await fetch('https://samsotechsales.github.io/wsmreport/config.json?t=' + Date.now());
+      const r = await fetch('./config.json?t=' + Date.now());
       const d = await r.json();
       if (d.webAppUrl) {
         CACHED_WEBAPP_URL = d.webAppUrl;
