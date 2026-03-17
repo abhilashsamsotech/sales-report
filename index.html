@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Samsotech · Weekly Sales &amp; Marketing Report 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -749,6 +752,7 @@ body {
               <option>Prajwal</option>
               <option>Pratibha</option>
               <option>Risheka</option>
+              <option>Rizvi</option>
               <option>Rodjard</option>
               <option>Ruchita</option>
               <option>Shahbaz</option>
@@ -1030,6 +1034,14 @@ body {
   </nav>
 
   <div class="layout">
+    <!-- ── MONTH / YEAR SELECTOR (Director) ── -->
+    <div class="filter-row" id="dir-filter-row">
+      <span class="filter-label">Month</span>
+      <select class="filter-select" id="dir-sel-month" onchange="onDirFilterChange()"></select>
+      <span class="filter-label">Year</span>
+      <select class="filter-select" id="dir-sel-year" onchange="onDirFilterChange()"></select>
+    </div>
+
     <!-- Director week selector -->
     <div class="week-row" id="dir-week-row" style="margin-bottom:24px;"></div>
 
@@ -1200,7 +1212,7 @@ const CHARGES = [
 const DIRECTOR_USERS = ['Abhilash'];
 
 const ALL_SE = ['Advith','Burhannudin','Don','Himani','Imtishal','Lidiya','Maitreyee',
-  'Mubeen','Mustafa','Nidhin','Pablo','Prajwal','Pratibha','Risheka',
+  'Mubeen','Mustafa','Nidhin','Pablo','Prajwal','Pratibha','Risheka','Rizvi',
   'Rodjard','Ruchita','Shahbaz','Shahzaman','Shijith','Vishnu'];
 const COUNTRIES = ['','United Arab Emirates (UAE)','Saudi Arabia','Qatar','Bahrain','Kuwait','Oman',
   'India','Egypt','Jordan','Thailand','Indonesia','Philippines','Malaysia','Singapore',
@@ -1591,6 +1603,40 @@ function onSEFilterChange() {
   renderMeetRows();
   renderCountryRows();
   fetchSubmissionFromSheet(weeks[selWeek]);
+}
+
+// ── DIRECTOR MONTH / YEAR FILTER ──
+function populateDirMonthYear() {
+  const mSel = document.getElementById('dir-sel-month');
+  const ySel = document.getElementById('dir-sel-year');
+  if (!mSel || !ySel) return;
+  mSel.innerHTML = '';
+  ySel.innerHTML = '';
+  MONTHS.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = i + 1; o.textContent = m;
+    if (i + 1 === selMonth) o.selected = true;
+    mSel.appendChild(o);
+  });
+  const cy = new Date().getFullYear();
+  for (let y = 2026; y <= cy; y++) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    if (y === selYear) o.selected = true;
+    ySel.appendChild(o);
+  }
+}
+function onDirFilterChange() {
+  selMonth = parseInt(document.getElementById('dir-sel-month').value);
+  selYear  = parseInt(document.getElementById('dir-sel-year').value);
+  weeks     = buildWeeks();
+  dirSelWeek = getCurrentWeekIdx();
+  updateDirWeekPill();
+  renderDirWeekRow();
+  renderSubTableLoading();
+  renderKPIsLoading();
+  renderProdBreakdownLoading();
+  fetchTeamStatus(weeks[dirSelWeek]);
 }
 
 // ── SESSION DATA ──
@@ -2756,8 +2802,11 @@ let dirTeamData = null; // cached from sheet
 let dirSelWeek  = 0;   // selected week index for director
 
 async function initDirector() {
+  selMonth = new Date().getMonth() + 1;
+  selYear  = new Date().getFullYear();
   weeks = buildWeeks();
   dirSelWeek = getCurrentWeekIdx();
+  populateDirMonthYear();
   updateDirWeekPill();
   renderDirWeekRow();
   if (!getWebAppUrl()) {
